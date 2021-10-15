@@ -33,6 +33,7 @@ import android.net.VpnService;
 import android.os.Build;
 import android.os.Environment;
 
+import dnsfilter.DNSBlockerService;
 import util.ExecutionEnvironment;
 
 public class BootUpReceiver extends BroadcastReceiver {
@@ -45,6 +46,9 @@ public class BootUpReceiver extends BroadcastReceiver {
 
 			if (Build.VERSION.SDK_INT >= 28) {
 				Intent i = new Intent(context, DNSFilterService.class);
+				VpnService.prepare(context);
+				context.startForegroundService(i);
+				i = new Intent(context, DNSBlockerService.class);
 				VpnService.prepare(context);
 				context.startForegroundService(i);
 			} else {

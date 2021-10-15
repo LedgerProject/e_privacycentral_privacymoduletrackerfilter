@@ -28,6 +28,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -108,6 +109,7 @@ public class DNSFilterService extends VpnService  {
 	PendingIntent pendingIntent;
 	private int mtu;
 	Notification.Builder notibuilder;
+	public static Context ct;
 
 	protected static class DNSReqForwarder {
 		//used in case vpn mode is disabled for forwaring dns requests to local dns proxy

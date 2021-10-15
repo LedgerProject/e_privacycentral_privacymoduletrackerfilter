@@ -78,6 +78,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import dnsfilter.ConfigurationAccess;
+import dnsfilter.DNSBlockerRunnable;
+import dnsfilter.DNSBlockerService;
 import dnsfilter.DNSFilterManager;
 import util.ExecutionEnvironment;
 import util.SuppressRepeatingsLogger;
@@ -1691,7 +1693,7 @@ public class DNSProxyActivity extends Activity implements OnClickListener, Logge
 
 	private void handleRestart() {
 	    if (CONFIG.isLocal()) {
-
+			DNSBlockerService.stop(false);
 			if (!DNSFilterService.stop(false))
 				return;
 
@@ -1742,6 +1744,7 @@ public class DNSProxyActivity extends Activity implements OnClickListener, Logge
 
 	private void startSvc() {
 		startService(new Intent(this, DNSFilterService.class));
+		startService(new Intent(this, DNSBlockerService.class));
 	}
 
 	@Override
