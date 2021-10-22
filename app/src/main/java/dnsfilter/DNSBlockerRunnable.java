@@ -82,10 +82,19 @@ public class DNSBlockerRunnable implements Runnable {
 
 				OutputStream output = socket.getOutputStream();
 				PrintWriter writer = new PrintWriter(output, true);
+				AppTrackerBlocklist dbHelper = new AppTrackerBlocklist(DNSFilterService.ct);
+				String domainName = params[0];
+				int appUid = Integer.parseInt(params[1]);
+				if( DNSResponsePatcher.filter(domainName, false) ) {
+					String trackerName = ExodusListManager.getInstance(DNSFilterService.ct).getTrackForDomain(domainName);
+					if(trackerName == null)
+						trackerName = domainName;
+					if(dbHelper.isTrackerBlockedForApp(trackerName, appUid)){
+						writer.println("block");
+						Log.d(TAG,"tracker "+trackerName);
+						Log.d(TAG, "blocking "+domainName+" for "+DNSFilterService.ct.getPackageManager().getPackagesForUid(appUid));
 
-				if( DNSResponsePatcher.filter(params[0], false)) {
-					writer.println("block");
-					Log.d(TAG, "blocking "+params[0]+" for "+DNSFilterService.ct.getPackageManager().getNameForUid(Integer.parseInt(params[1])));
+					}
 
 				}
 				else {
