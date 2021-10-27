@@ -31,9 +31,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.VpnService;
 import android.os.Build;
-import android.os.Environment;
 
-import dnsfilter.DNSBlockerService;
+import foundation.e.trackerfilter.DNSBlockerService;
 import util.ExecutionEnvironment;
 
 public class BootUpReceiver extends BroadcastReceiver {

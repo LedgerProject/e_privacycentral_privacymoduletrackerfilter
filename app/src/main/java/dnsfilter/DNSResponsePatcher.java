@@ -174,7 +174,7 @@ public class DNSResponsePatcher {
 		}
 	}
 
-	protected static boolean filter(String host, boolean log) {
+	public static boolean filter(String host, boolean log) {
 		boolean result;
 
 		if (FILTER == null)

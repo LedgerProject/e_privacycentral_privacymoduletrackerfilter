@@ -649,7 +649,7 @@ public class DNSFilterService extends VpnService  {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-
+		ct=this;
 		AndroidEnvironment.initEnvironment(this);
 		INSTANCE = this;
 		SERVICE = intent;

@@ -1,16 +1,11 @@
-package dnsfilter;
+package foundation.e.trackerfilter;
 
 import android.content.Context;
-import android.util.JsonReader;
-import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;

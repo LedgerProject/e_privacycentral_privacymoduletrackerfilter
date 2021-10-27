@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
 
-import dnsfilter.DNSBlockerService;
 import util.ExecutionEnvironment;
 import util.ExecutionEnvironmentInterface;
 import util.Logger;

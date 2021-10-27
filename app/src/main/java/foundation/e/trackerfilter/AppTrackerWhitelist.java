@@ -1,4 +1,4 @@
-package dnsfilter;
+package foundation.e.trackerfilter;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-public class AppTrackerBlocklist extends SQLiteOpenHelper {
+public class AppTrackerWhitelist extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "AppTrackerBlocklist.db";
 
-    public AppTrackerBlocklist(Context context) {
+    public AppTrackerWhitelist(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

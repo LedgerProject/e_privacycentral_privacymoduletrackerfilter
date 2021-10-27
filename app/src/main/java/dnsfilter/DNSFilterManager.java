@@ -84,7 +84,7 @@ public class DNSFilterManager extends ConfigurationAccess  {
 
 	private static LoggerInterface TRAFFIC_LOG;
 
-	private static BlockedHosts hostFilter = null;
+	public static BlockedHosts hostFilter = null;
 	private static Hashtable hostsFilterOverRule = null;
 	private static Hashtable<String, byte[]> customIPMappings = null;
 	private boolean serverStopped = true;

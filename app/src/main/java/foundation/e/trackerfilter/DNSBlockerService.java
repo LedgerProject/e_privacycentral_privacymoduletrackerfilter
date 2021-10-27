@@ -1,10 +1,12 @@
-package dnsfilter;
+package foundation.e.trackerfilter;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
 import java.io.IOException;
+
+import dnsfilter.DNSFilterManager;
 
 public class DNSBlockerService extends Service {
     private static DNSBlockerRunnable sDNSBlocker;

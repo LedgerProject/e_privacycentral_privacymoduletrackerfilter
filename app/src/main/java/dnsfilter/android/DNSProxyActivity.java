@@ -78,9 +78,9 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import dnsfilter.ConfigurationAccess;
-import dnsfilter.DNSBlockerRunnable;
-import dnsfilter.DNSBlockerService;
+
 import dnsfilter.DNSFilterManager;
+import foundation.e.trackerfilter.DNSBlockerService;
 import util.ExecutionEnvironment;
 import util.SuppressRepeatingsLogger;
 import util.GroupedLogger;

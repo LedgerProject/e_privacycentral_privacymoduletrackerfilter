@@ -1,4 +1,4 @@
-package dnsfilter;
+package foundation.e.trackerfilter;
 
 /*
  PersonalDNSFilter 1.5
@@ -27,21 +27,16 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
+import dnsfilter.DNSResponsePatcher;
 import dnsfilter.android.DNSFilterService;
 import util.ExecutionEnvironment;
-import util.GroupedLogger;
 import util.Logger;
-import util.LoggerInterface;
-import util.SuppressRepeatingsLogger;
 
 public class DNSBlockerRunnable implements Runnable {
 
@@ -82,22 +77,24 @@ public class DNSBlockerRunnable implements Runnable {
 
 				OutputStream output = socket.getOutputStream();
 				PrintWriter writer = new PrintWriter(output, true);
-				AppTrackerBlocklist dbHelper = new AppTrackerBlocklist(DNSFilterService.ct);
+				AppTrackerWhitelist dbHelper = new AppTrackerWhitelist(DNSFilterService.ct);
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
+				boolean shouldBlock = false;
 				if( DNSResponsePatcher.filter(domainName, false) ) {
 					String trackerName = ExodusListManager.getInstance(DNSFilterService.ct).getTrackForDomain(domainName);
 					if(trackerName == null)
 						trackerName = domainName;
 					if(dbHelper.isTrackerBlockedForApp(trackerName, appUid)){
 						writer.println("block");
+						shouldBlock = true;
 						Log.d(TAG,"tracker "+trackerName);
 						Log.d(TAG, "blocking "+domainName+" for "+DNSFilterService.ct.getPackageManager().getPackagesForUid(appUid));
 
 					}
-
+					StatsIntentService.startActionLog(DNSFilterService.ct, domainName, appUid);
 				}
-				else {
+				if(!shouldBlock) {
 					writer.println("pass");
 					Log.d(TAG, "not blocking "+params[0]+" for "+DNSFilterService.ct.getPackageManager().getNameForUid(Integer.parseInt(params[1])));
 
@@ -110,11 +107,16 @@ public class DNSBlockerRunnable implements Runnable {
 			}
 		}
 		Log.d(TAG,"Stopped");
+		try {
+			resolverReceiver.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 
 	public synchronized void stop() {
-		stopped = true;
+		//stopped = true;
 
 	}
 
