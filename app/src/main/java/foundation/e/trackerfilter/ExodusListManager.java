@@ -8,14 +8,17 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class ExodusListManager {
     private static ExodusListManager sExodusListManager;
     private Context mContext;
     private HashMap<String, String> domainToTracker = new HashMap<>();
+    private List<TrackerDetailed> trackers= new ArrayList<>();
 
     public ExodusListManager(Context context){
         mContext = context;
@@ -52,8 +55,13 @@ public class ExodusListManager {
                     String key = keys.next();
                     JSONObject tracker = trackers.getJSONObject(key);
                     String networkSignature = tracker.getString("network_signature");
+                    TrackerDetailed trackerDetailed = new TrackerDetailed(tracker.getString("name"),
+                            "");
+                    trackerDetailed.exodusId = tracker.getInt("id");
+                    trackerDetailed.description = tracker.getString("description");
                     if(!networkSignature.isEmpty()){
                         domainToTracker.put(networkSignature, tracker.getString("name"));
+                        trackerDetailed.networkSignature = networkSignature;
                     }
                 }
 
@@ -63,6 +71,10 @@ public class ExodusListManager {
 
 
         }
+    }
+
+    public List<TrackerDetailed> getTrackers(){
+        return trackers;
     }
 
     public static ExodusListManager getInstance(Context context){

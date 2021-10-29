@@ -48,16 +48,14 @@ public class StatsIntentService extends IntentService {
 
 
     private void handleActionLog(String domainName, int appId) {
-        String tracker = ExodusListManager.getInstance(this).getTrackForDomain(domainName);
-        if(tracker == null)
-            tracker = domainName;
-        StatsDatabase database = new StatsDatabase(this);
-        database.logAccess(tracker,appId);
-        Log.d(TAG,"Logging stat "+domainName+":"+appId);
-        for(String track : database.getAllTrackersOfApp(appId)){
-            Log.d(TAG,"tracker "+track);
-
+        TrackerDetailed trackerDetailed = TrackerListManager.getInstance(this).getTrackerByDomainName(domainName);
+        if(trackerDetailed == null){
+            trackerDetailed = new TrackerDetailed(null, domainName);
+            trackerDetailed = TrackerListManager.getInstance(this).addTracker(trackerDetailed);
         }
+        StatsDatabase database = new StatsDatabase(this);
+        database.logAccess(trackerDetailed.id,appId);
+
     }
 
 
