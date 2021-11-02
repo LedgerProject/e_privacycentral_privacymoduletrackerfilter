@@ -7,7 +7,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import foundation.e.privacymodules.trackers.Tracker;
 
 
 public class TrackerListManager extends SQLiteOpenHelper {
@@ -16,8 +19,11 @@ public class TrackerListManager extends SQLiteOpenHelper {
 
     private static TrackerListManager sTrackerListManager;
     private final Context mContext;
-    public List<TrackerDetailed> mTrackers;
+    public HashMap<Integer, Tracker> mTrackersIdMap;
     private Object lock = new Object();
+
+
+
     public static class TrackerEntry implements BaseColumns {
         public static final String TRACKERS_TABLE_NAME = "app_tracker_blocklist";
         public static final String COLUMN_ID = "id";
@@ -54,23 +60,23 @@ public class TrackerListManager extends SQLiteOpenHelper {
 
     public void init(){
         synchronized (lock){
-            mTrackers = new ArrayList<>();
+            mTrackersIdMap = new HashMap<>();
         }
     }
 
 
-    public List<TrackerDetailed> getTrackers(){
-        return mTrackers;
+    public List<Tracker> getTrackers(){
+        return new ArrayList<>(mTrackersIdMap.values());
     }
 
     public void syncWithExodusList(){
 
-        List<TrackerDetailed> exodusTrackers =  ExodusListManager.getInstance(mContext).getTrackers();
-        List<TrackerDetailed> trackers = new ArrayList<>(mTrackers);
-        for(TrackerDetailed exodusTracker : exodusTrackers){
+        List<Tracker> exodusTrackers =  ExodusListManager.getInstance(mContext).getTrackers();
+        List<Tracker> trackers = new ArrayList<>(new ArrayList<>(mTrackersIdMap.values()));
+        for(Tracker exodusTracker : exodusTrackers){
             boolean isIn = false;
-            for(TrackerDetailed tracker:trackers){
-                if(tracker.exodusId == exodusTracker.exodusId){
+            for(Tracker tracker:trackers){
+                if(tracker.getExodusId() == exodusTracker.getExodusId()){
                     isIn = true;
                     break;
                 }
@@ -82,29 +88,29 @@ public class TrackerListManager extends SQLiteOpenHelper {
 
     }
 
-    public TrackerDetailed addTracker(TrackerDetailed tracker) {
+    public Tracker addTracker(Tracker tracker) {
         synchronized (lock){
             SQLiteDatabase db = getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(TrackerEntry.COLUMN_EXODE_ID, ""+tracker.exodusId);
+            values.put(TrackerEntry.COLUMN_EXODE_ID, ""+tracker.getExodusId());
             values.put(TrackerEntry.COLUMN_HOSTNAME, tracker.getHostname());
-            values.put(TrackerEntry.COLUMN_NETWORK_SIGNATURE, tracker.networkSignature);
-            values.put(TrackerEntry.COLUMN_DESCRIPTION, tracker.description);
+            values.put(TrackerEntry.COLUMN_NETWORK_SIGNATURE, tracker.getNetworkSignature());
+            values.put(TrackerEntry.COLUMN_DESCRIPTION, tracker.getDescription());
             values.put(TrackerEntry.COLUMN_LABEL, tracker.getLabel());
 
             long id = db.insert(AppTrackerWhitelist.AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, null, values);
-            tracker.id = (int) id;
+            tracker = new Tracker(tracker.getLabel(), tracker.getHostname(), tracker.getId(), tracker.getExodusId(), tracker.getDescription(), tracker.getNetworkSignature());
             return tracker;
         }
     }
 
 
-    public TrackerDetailed getTrackerByDomainName(String domain){
-        for(TrackerDetailed trackerDetailed : mTrackers){
+    public Tracker getTrackerByDomainName(String domain){
+        for(Tracker trackerDetailed : new ArrayList<>(mTrackersIdMap.values())){
             //if(entry.getKey().contains("google"))
             //   Log.d("DNSBlockerRunnable","is google "+entry.getKey());
-            if(trackerDetailed.exodusId >=0) {
-                String net = trackerDetailed.networkSignature;
+            if(trackerDetailed.getExodusId() >=0) {
+                String net = trackerDetailed.getNetworkSignature();
                 String[] regexs = net.split("\\|");
                 for (String regex : regexs) {
                     regex = ".*" + regex;
@@ -117,6 +123,10 @@ public class TrackerListManager extends SQLiteOpenHelper {
             }
         }
         return null;
+    }
+
+    public Tracker getTracker(int trackerId) {
+        return mTrackersIdMap.get(trackerId);
     }
 
     @Override

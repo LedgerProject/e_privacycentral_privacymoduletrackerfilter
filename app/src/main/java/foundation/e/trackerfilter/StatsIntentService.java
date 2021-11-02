@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import foundation.e.privacymodules.trackers.Tracker;
+
 
 public class StatsIntentService extends IntentService {
 
@@ -48,13 +50,13 @@ public class StatsIntentService extends IntentService {
 
 
     private void handleActionLog(String domainName, int appId) {
-        TrackerDetailed trackerDetailed = TrackerListManager.getInstance(this).getTrackerByDomainName(domainName);
+        Tracker trackerDetailed = TrackerListManager.getInstance(this).getTrackerByDomainName(domainName);
         if(trackerDetailed == null){
             trackerDetailed = new TrackerDetailed(null, domainName);
             trackerDetailed = TrackerListManager.getInstance(this).addTracker(trackerDetailed);
         }
         StatsDatabase database = new StatsDatabase(this);
-        database.logAccess(trackerDetailed.id,appId);
+        database.logAccess(trackerDetailed.getId(),appId);
 
     }
 

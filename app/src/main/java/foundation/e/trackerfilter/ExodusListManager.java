@@ -14,11 +14,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import foundation.e.privacymodules.trackers.Tracker;
+
 public class ExodusListManager {
     private static ExodusListManager sExodusListManager;
     private Context mContext;
     private HashMap<String, String> domainToTracker = new HashMap<>();
-    private List<TrackerDetailed> trackers= new ArrayList<>();
+    private List<Tracker> trackers= new ArrayList<>();
 
     public ExodusListManager(Context context){
         mContext = context;
@@ -48,21 +50,20 @@ public class ExodusListManager {
         if(!exodus.isEmpty()){
             try {
                 JSONObject object = new JSONObject(exodus);
-                JSONObject trackers = object.getJSONObject("trackers");
-                Iterator<String> keys = trackers.keys();
+                JSONObject trackersJson = object.getJSONObject("trackers");
+                Iterator<String> keys = trackersJson.keys();
 
                 while(keys.hasNext()) {
                     String key = keys.next();
-                    JSONObject tracker = trackers.getJSONObject(key);
+                    JSONObject tracker = trackersJson.getJSONObject(key);
                     String networkSignature = tracker.getString("network_signature");
-                    TrackerDetailed trackerDetailed = new TrackerDetailed(tracker.getString("name"),
-                            "");
-                    trackerDetailed.exodusId = tracker.getInt("id");
-                    trackerDetailed.description = tracker.getString("description");
+                    Tracker trackerDetailed = new Tracker(tracker.getString("name"),
+                            "", -1, tracker.getInt("id"), tracker.getString("description"), networkSignature);
+
                     if(!networkSignature.isEmpty()){
                         domainToTracker.put(networkSignature, tracker.getString("name"));
-                        trackerDetailed.networkSignature = networkSignature;
                     }
+                    trackers.add(trackerDetailed);
                 }
 
             } catch (JSONException e) {
@@ -73,7 +74,7 @@ public class ExodusListManager {
         }
     }
 
-    public List<TrackerDetailed> getTrackers(){
+    public List<Tracker> getTrackers(){
         return trackers;
     }
 

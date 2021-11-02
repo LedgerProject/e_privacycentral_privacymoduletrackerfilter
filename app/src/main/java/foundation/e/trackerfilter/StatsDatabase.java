@@ -61,10 +61,10 @@ public class StatsDatabase extends SQLiteOpenHelper {
                     AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + " INTEGER," +
                     AppTrackerEntry.COLUMN_NAME_NUMBER_BLOCKED + " INTEGER," +
                     AppTrackerEntry.COLUMN_NAME_APP_UID + " INTEGER," +
-                    AppTrackerEntry.COLUMN_NAME_TRACKER + " TEXT)";
+                    AppTrackerEntry.COLUMN_NAME_TRACKER + " INTEGER)";
 
 
-    public void logAccess(String tracker, int app_uid){
+    public void logAccess(int trackerId, int appUid){
         Calendar cal = Calendar.getInstance();
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int day = cal.get(Calendar.DAY_OF_MONTH);
@@ -77,8 +77,8 @@ public class StatsDatabase extends SQLiteOpenHelper {
         values.put(AppTrackerEntry.COLUMN_NAME_DAY, day);
         values.put(AppTrackerEntry.COLUMN_NAME_MONTH, month);
         values.put(AppTrackerEntry.COLUMN_NAME_YEAR, year);
-        values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
-        values.put(AppTrackerEntry.COLUMN_NAME_TRACKER, tracker);
+        values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, appUid);
+        values.put(AppTrackerEntry.COLUMN_NAME_TRACKER, trackerId);
 
         long newRowId = db.insert(AppTrackerEntry.TABLE_NAME, null, values);
         db.close();
