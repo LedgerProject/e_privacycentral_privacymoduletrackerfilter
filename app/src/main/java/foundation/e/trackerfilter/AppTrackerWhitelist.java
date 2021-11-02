@@ -109,6 +109,26 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
         return cursor.getCount() > 0;
     }
 
+    public List<Integer> getWhiteListedApps() {
+        List<Integer> apps = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(
+                AppTrackerEntry.APP_WHITELIST_TABLE_NAME,
+                app_projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        while(cursor.moveToNext()){
+            apps.add(cursor.getInt(cursor
+                    .getColumnIndex(AppTrackerEntry.COLUMN_NAME_APP_UID)));
+
+        }
+        return apps;
+    }
+
 
     public static class AppTrackerEntry implements BaseColumns {
         public static final String APP_TRACKER_WHITELIST_TABLE_NAME = "app_tracker_blocklist";
