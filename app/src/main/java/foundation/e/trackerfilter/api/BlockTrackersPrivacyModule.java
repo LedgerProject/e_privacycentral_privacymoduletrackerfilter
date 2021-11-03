@@ -1,5 +1,6 @@
 package foundation.e.trackerfilter.api;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -15,6 +16,7 @@ import foundation.e.trackerfilter.AppTrackerWhitelist;
 public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
     private List<Listener> mListeners = new ArrayList<>();
+    private static BlockTrackersPrivacyModule sBlockTrackersPrivacyModule;
 
     @Override
     public void addListener(Listener listener) {
@@ -80,5 +82,12 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
     @Override
     public void setWhiteListed(int i, boolean b) {
         AppTrackerWhitelist.getInstance(DNSFilterService.ct).setWhiteListed(i, b);
+    }
+
+    public static BlockTrackersPrivacyModule getInstance(Context ct){
+        if(sBlockTrackersPrivacyModule == null){
+            sBlockTrackersPrivacyModule = new BlockTrackersPrivacyModule();
+        }
+        return sBlockTrackersPrivacyModule;
     }
 }

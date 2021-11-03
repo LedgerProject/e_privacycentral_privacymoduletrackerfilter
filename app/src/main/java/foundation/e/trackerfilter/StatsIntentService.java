@@ -11,11 +11,11 @@ import foundation.e.privacymodules.trackers.Tracker;
 public class StatsIntentService extends IntentService {
 
     private static final String ACTION_LOG = "dnsfilter.action.log";
-    private static final String ACTION_BAZ = "dnsfilter.action.BAZ";
 
     // TODO: Rename parameters
-    private static final String EXTRA_DOMAIN_NAME = "dnsfilter.extra.PARAM1";
-    private static final String EXTRA_APP_UID = "dnsfilter.extra.PARAM2";
+    private static final String EXTRA_DOMAIN_NAME = "domain_name";
+    private static final String EXTRA_APP_UID = "app_uid";
+    private static final String EXTRA_BLOCKED = "blocked";
     private static final String TAG = StatsIntentService.class.getName();
 
     public StatsIntentService() {
@@ -28,11 +28,12 @@ public class StatsIntentService extends IntentService {
      * @param domainName
      * @param appUid
      */
-    public static void startActionLog(Context context, String domainName, int appUid) {
+    public static void startActionLog(Context context, String domainName, int appUid, boolean wasBlocked) {
         Intent intent = new Intent(context, StatsIntentService.class);
         intent.setAction(ACTION_LOG);
         intent.putExtra(EXTRA_DOMAIN_NAME, domainName);
         intent.putExtra(EXTRA_APP_UID, appUid);
+        intent.putExtra(EXTRA_BLOCKED, wasBlocked);
         context.startService(intent);
     }
 
@@ -43,20 +44,25 @@ public class StatsIntentService extends IntentService {
             if (ACTION_LOG.equals(action)) {
                 final String domaineName = intent.getStringExtra(EXTRA_DOMAIN_NAME);
                 final int appUid = intent.getIntExtra(EXTRA_APP_UID,-1);
-                handleActionLog(domaineName, appUid);
+                handleActionLog(domaineName, appUid, intent.getBooleanExtra(EXTRA_BLOCKED, false));
             }
         }
     }
 
 
-    private void handleActionLog(String domainName, int appId) {
-        Tracker trackerDetailed = TrackerListManager.getInstance(this).getTrackerByDomainName(domainName);
-        if(trackerDetailed == null){
-            trackerDetailed = new TrackerDetailed(null, domainName);
-            trackerDetailed = TrackerListManager.getInstance(this).addTracker(trackerDetailed);
+    private void handleActionLog(String domainName, int appId, boolean wasBlocked) {
+        Tracker tracker = TrackerListManager.getInstance(this).getTrackerByDomainName(domainName);
+        if(tracker == null){
+            tracker = new Tracker("", domainName, -1,  -1, null, null);
+            tracker = TrackerListManager.getInstance(this).addTracker(tracker);
         }
-        StatsDatabase database = new StatsDatabase(this);
-        database.logAccess(trackerDetailed.getId(),appId);
+        StatsDatabase database = StatsDatabase.getInstance(this);
+        database.logAccess(tracker.getId(),appId, wasBlocked);
+        int i = 0;
+        for(Integer j: database.getPast24h()){
+            Log.d(TAG, "last"+i+" "+j);
+            i++;
+        }
 
     }
 

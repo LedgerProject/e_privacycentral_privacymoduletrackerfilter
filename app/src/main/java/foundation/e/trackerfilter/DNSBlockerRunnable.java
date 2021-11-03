@@ -88,11 +88,12 @@ public class DNSBlockerRunnable implements Runnable {
 					if(!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))){
 						writer.println("block");
 						shouldBlock = true;
+						if(tracker!=null)
 						Log.d(TAG,"tracker "+tracker.getLabel());
 						Log.d(TAG, "blocking "+domainName+" for "+DNSFilterService.ct.getPackageManager().getPackagesForUid(appUid));
 
 					}
-					StatsIntentService.startActionLog(DNSFilterService.ct, domainName, appUid);
+					StatsIntentService.startActionLog(DNSFilterService.ct, domainName, appUid, shouldBlock);
 				}
 				if(!shouldBlock) {
 					writer.println("pass");
