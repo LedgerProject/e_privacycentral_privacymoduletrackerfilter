@@ -2,6 +2,7 @@ package foundation.e.trackerfilter;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
@@ -25,7 +26,7 @@ public class TrackerListManager extends SQLiteOpenHelper {
 
 
     public static class TrackerEntry implements BaseColumns {
-        public static final String TRACKERS_TABLE_NAME = "app_tracker_blocklist";
+        public static final String TRACKERS_TABLE_NAME = "tracker_table";
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_LABEL = "label";
         public static final String COLUMN_EXODE_ID = "exode_id";
@@ -34,7 +35,7 @@ public class TrackerListManager extends SQLiteOpenHelper {
         public static final String COLUMN_DESCRIPTION = "description";
     }
     private static final String TRACKERS_CREATE_TABLE =
-            "CREATE TABLE " + AppTrackerWhitelist.AppTrackerEntry.APP_WHITELIST_TABLE_NAME + " (" +
+            "CREATE TABLE " + TrackerEntry.TRACKERS_TABLE_NAME + " (" +
                     TrackerEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     TrackerEntry.COLUMN_LABEL + " TEXT," +
                     TrackerEntry.COLUMN_EXODE_ID + " INTEGER," +
@@ -61,6 +62,33 @@ public class TrackerListManager extends SQLiteOpenHelper {
     public void init(){
         synchronized (lock){
             mTrackersIdMap = new HashMap<>();
+
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(
+                    TrackerEntry.TRACKERS_TABLE_NAME,
+                    new String[]{TrackerEntry.COLUMN_ID,
+                            TrackerEntry.COLUMN_LABEL,
+                            TrackerEntry.COLUMN_HOSTNAME,
+                            TrackerEntry.COLUMN_DESCRIPTION,
+                            TrackerEntry.COLUMN_EXODE_ID,
+                            TrackerEntry.COLUMN_NETWORK_SIGNATURE},
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            while(cursor.moveToNext()){
+                Tracker tracker = new Tracker(cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_LABEL)),
+                        cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_HOSTNAME)),
+                        cursor.getInt(cursor.getColumnIndex(TrackerEntry.COLUMN_ID)),
+                        cursor.getInt(cursor.getColumnIndex(TrackerEntry.COLUMN_EXODE_ID)),
+                        cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_DESCRIPTION)),
+                        cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_NETWORK_SIGNATURE)));
+                mTrackersIdMap.put(tracker.getId(), tracker);
+            }
+            cursor.close();
+            db.close();
         }
     }
 
@@ -98,7 +126,7 @@ public class TrackerListManager extends SQLiteOpenHelper {
             values.put(TrackerEntry.COLUMN_DESCRIPTION, tracker.getDescription());
             values.put(TrackerEntry.COLUMN_LABEL, tracker.getLabel());
 
-            long id = db.insert(AppTrackerWhitelist.AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, null, values);
+            long id = db.insert(TrackerEntry.TRACKERS_TABLE_NAME, null, values);
             tracker = new Tracker(tracker.getLabel(), tracker.getHostname(), tracker.getId(), tracker.getExodusId(), tracker.getDescription(), tracker.getNetworkSignature());
             return tracker;
         }
@@ -111,6 +139,8 @@ public class TrackerListManager extends SQLiteOpenHelper {
             //   Log.d("DNSBlockerRunnable","is google "+entry.getKey());
             if(trackerDetailed.getExodusId() >=0) {
                 String net = trackerDetailed.getNetworkSignature();
+                if(net.isEmpty())
+                    continue;
                 String[] regexs = net.split("\\|");
                 for (String regex : regexs) {
                     regex = ".*" + regex;
