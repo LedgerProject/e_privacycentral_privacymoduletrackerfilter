@@ -15,7 +15,7 @@ import foundation.e.privacymodules.trackers.Tracker;
 
 public class AppTrackerWhitelist extends SQLiteOpenHelper{
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "AppTrackerBlocklist.db";
+    public static final String DATABASE_NAME = "AppTrackerWhitelist.db";
     private static AppTrackerWhitelist sAppTrackerWhitelist;
     private final Context mContext;
 
@@ -98,7 +98,7 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.query(
                 AppTrackerEntry.APP_WHITELIST_TABLE_NAME,
-                app_tracker_projection,
+                app_projection,
                 AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
                 new String[]{""+appUid},
                 null,
@@ -131,8 +131,8 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
 
 
     public static class AppTrackerEntry implements BaseColumns {
-        public static final String APP_TRACKER_WHITELIST_TABLE_NAME = "app_tracker_blocklist";
-        public static final String APP_WHITELIST_TABLE_NAME = "app_blocklist";
+        public static final String APP_TRACKER_WHITELIST_TABLE_NAME = "app_tracker_whitelist";
+        public static final String APP_WHITELIST_TABLE_NAME = "app_whitelist";
         public static final String COLUMN_NAME_APP_UID = "app_uid";
         public static final String COLUMN_NAME_TRACKER = "tracker";
     }
