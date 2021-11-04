@@ -36,6 +36,7 @@ import java.net.Socket;
 import dnsfilter.DNSResponsePatcher;
 import dnsfilter.android.DNSFilterService;
 import foundation.e.privacymodules.trackers.Tracker;
+import foundation.e.trackerfilter.api.BlockTrackersPrivacyModule;
 import util.ExecutionEnvironment;
 import util.Logger;
 
@@ -82,7 +83,7 @@ public class DNSBlockerRunnable implements Runnable {
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
 				boolean shouldBlock = false;
-				if( DNSResponsePatcher.filter(domainName, false) ) {
+				if(BlockTrackersPrivacyModule.getInstance(DNSFilterService.ct).isBlockingEnabled() && DNSResponsePatcher.filter(domainName, false) ) {
 					Tracker tracker = TrackerListManager.getInstance(DNSFilterService.ct).getTrackerByDomainName(domainName);
 					// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
 					if(!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))){
