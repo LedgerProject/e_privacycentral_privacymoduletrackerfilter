@@ -57,7 +57,7 @@ public class DNSBlockerRunnable implements Runnable {
 			resolverReceiver
 					= new ServerSocket(8888);
 
-			ExecutionEnvironment.getEnvironment().protectSocket(resolverReceiver, 1);
+	//		ExecutionEnvironment.getEnvironment().protectSocket(resolverReceiver, 1);
 
 		} catch (IOException eio) {
 			Logger.getLogger().logLine("Exception:Cannot open DNS port " + port + "!" + eio.getMessage());
