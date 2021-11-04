@@ -2,6 +2,8 @@ package foundation.e.trackerfilter.api;
 
 import android.content.Context;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import foundation.e.privacymodules.trackers.ITrackTrackersPrivacyModule;
@@ -17,7 +19,7 @@ public class TrackTrackersPrivacyModule implements ITrackTrackersPrivacyModule {
     }
 
     @Override
-    public List<Integer> getPast24HoursTrackersCalls() {
+    public List<Integer> getPastDayTrackersCalls() {
         return StatsDatabase.getInstance(mContext).getPast24h();
     }
 
@@ -45,5 +47,20 @@ public class TrackTrackersPrivacyModule implements ITrackTrackersPrivacyModule {
             sTrackTrackersPrivacyModule = new TrackTrackersPrivacyModule(ct);
         }
         return sTrackTrackersPrivacyModule;
+    }
+
+    @Override
+    public int getPastDayTrackersCount() {
+        return 0;
+    }
+
+    @Override
+    public int getPastMonthTrackersCount() {
+        return 0;
+    }
+
+    @Override
+    public int getPastYearTrackersCount() {
+        return 0;
     }
 }

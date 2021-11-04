@@ -79,9 +79,9 @@ public class TrackerListManager extends SQLiteOpenHelper {
                     null
             );
             while(cursor.moveToNext()){
-                Tracker tracker = new Tracker(cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_LABEL)),
+                Tracker tracker = new Tracker(cursor.getInt(cursor.getColumnIndex(TrackerEntry.COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_LABEL)),
                         cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_HOSTNAME)),
-                        cursor.getInt(cursor.getColumnIndex(TrackerEntry.COLUMN_ID)),
                         cursor.getInt(cursor.getColumnIndex(TrackerEntry.COLUMN_EXODE_ID)),
                         cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_DESCRIPTION)),
                         cursor.getString(cursor.getColumnIndex(TrackerEntry.COLUMN_NETWORK_SIGNATURE)));
@@ -127,7 +127,7 @@ public class TrackerListManager extends SQLiteOpenHelper {
             values.put(TrackerEntry.COLUMN_LABEL, tracker.getLabel());
 
             long id = db.insert(TrackerEntry.TRACKERS_TABLE_NAME, null, values);
-            tracker = new Tracker(tracker.getLabel(), tracker.getHostname(), tracker.getId(), tracker.getExodusId(), tracker.getDescription(), tracker.getNetworkSignature());
+            tracker = new Tracker(tracker.getId(), tracker.getLabel(), tracker.getHostname(), tracker.getExodusId(), tracker.getDescription(), tracker.getNetworkSignature());
             return tracker;
         }
     }

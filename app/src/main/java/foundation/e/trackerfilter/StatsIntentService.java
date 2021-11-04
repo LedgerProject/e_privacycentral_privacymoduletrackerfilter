@@ -53,7 +53,7 @@ public class StatsIntentService extends IntentService {
     private void handleActionLog(String domainName, int appId, boolean wasBlocked) {
         Tracker tracker = TrackerListManager.getInstance(this).getTrackerByDomainName(domainName);
         if(tracker == null){
-            tracker = new Tracker("", domainName, -1,  -1, null, null);
+            tracker = new Tracker(-1, "", domainName,  -1, null, null);
             tracker = TrackerListManager.getInstance(this).addTracker(tracker);
         }
         StatsDatabase database = StatsDatabase.getInstance(this);

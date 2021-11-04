@@ -57,8 +57,8 @@ public class ExodusListManager {
                     String key = keys.next();
                     JSONObject tracker = trackersJson.getJSONObject(key);
                     String networkSignature = tracker.getString("network_signature");
-                    Tracker trackerDetailed = new Tracker(tracker.getString("name"),
-                            "", -1, tracker.getInt("id"), tracker.getString("description"), networkSignature);
+                    Tracker trackerDetailed = new Tracker(-1, tracker.getString("name"),
+                            "",  tracker.getInt("id"), tracker.getString("description"), networkSignature);
 
                     if(!networkSignature.isEmpty()){
                         domainToTracker.put(networkSignature, tracker.getString("name"));
