@@ -148,7 +148,6 @@ public class StatsDatabase extends SQLiteOpenHelper {
                 " LIMIT 12", selectionArg);
         List<Integer> entries = new ArrayList<>();
         HashMap<Long, Integer> timedEntries = new HashMap<>();
-        Log.d("pastdebug","cursor "+cursor.getCount());
         while(cursor.moveToNext()){
             timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), cursor.getInt(cursor.getColumnIndex("SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED+")")));
         }
