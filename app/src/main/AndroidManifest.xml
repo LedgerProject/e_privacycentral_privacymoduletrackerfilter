@@ -28,6 +28,13 @@
             </intent-filter>
         </activity>
         <service
+            android:name="foundation.e.trackerfilter.StatsIntentService"
+            android:exported="false"></service>
+        <service
+            android:name="foundation.e.trackerfilter.DNSBlockerService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
             android:name="dnsfilter.android.DNSFilterService"
             android:label="personalDNSfilterService"
             android:permission="android.permission.BIND_VPN_SERVICE" >
