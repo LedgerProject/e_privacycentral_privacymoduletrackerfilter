@@ -84,16 +84,8 @@ public class StatsDatabase extends SQLiteOpenHelper {
     public List<Integer> getPast24h(){
         long current = System.currentTimeMillis();
         long min = current - 24*60*60*1000;
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int day = cal.get(Calendar.DAY_OF_MONTH);
-        int month = cal.get(Calendar.MONTH);
-        int year = cal.get(Calendar.YEAR);
         SQLiteDatabase db = getWritableDatabase();
 
-        /*String selection = AppTrackerEntry.COLUMN_NAME_DAY+" = ? AND "+AppTrackerEntry.COLUMN_NAME_MONTH+" = ? AND "+
-                AppTrackerEntry.COLUMN_NAME_YEAR+ " = ? AND "+AppTrackerEntry.COLUMN_NAME_APP_UID+" = ? AND "+
-                AppTrackerEntry.COLUMN_NAME_TRACKER+" = ? ";*/
         String selection = AppTrackerEntry.COLUMN_NAME_TIMESTAMP+" >= ?";
 
         String [] selectionArg = new String[]{""+min};
@@ -130,9 +122,99 @@ public class StatsDatabase extends SQLiteOpenHelper {
             }
         }
         cursor.close();
+        db.close();
         return entries;
 
     }
+
+    public List<Integer> getPastYear(){
+        long current = System.currentTimeMillis();
+        long substract = 12L*30L*24L*60L*60L*1000L;
+        long min = current - substract;
+        SQLiteDatabase db = getWritableDatabase();
+        String selection = AppTrackerEntry.COLUMN_NAME_TIMESTAMP+" >= ?";
+
+        String [] selectionArg = new String[]{""+min};
+        String projection =
+                AppTrackerEntry.COLUMN_NAME_YEAR+", "+
+                        AppTrackerEntry.COLUMN_NAME_MONTH+", "+
+                        AppTrackerEntry.COLUMN_NAME_TIMESTAMP+", "+
+                        "SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED+")"+"," +
+                        "SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_BLOCKED+")";
+        Cursor cursor = db.rawQuery("SELECT "+projection+" FROM "+AppTrackerEntry.TABLE_NAME
+                +" WHERE "+selection +
+                " GROUP BY "+AppTrackerEntry.COLUMN_NAME_MONTH+
+                " ORDER BY "+AppTrackerEntry.COLUMN_NAME_TIMESTAMP + " DESC"+
+                " LIMIT 12", selectionArg);
+        List<Integer> entries = new ArrayList<>();
+        HashMap<Long, Integer> timedEntries = new HashMap<>();
+        Log.d("pastdebug","cursor "+cursor.getCount());
+        while(cursor.moveToNext()){
+            timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), cursor.getInt(cursor.getColumnIndex("SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED+")")));
+        }
+        long month = 30L*24L*60L*60L*1000L;
+
+        for (long i = 1; i <= 12; i++){
+            min = current - i*month;
+            boolean found = false;
+            for(Map.Entry<Long, Integer> timedEntry:timedEntries.entrySet()){
+                if(timedEntry.getKey() >= min && timedEntry.getKey() < min + month){
+                    entries.add(timedEntry.getValue());
+                    found = true;
+                }
+            }
+            if(!found){
+                entries.add(0);
+            }
+        }
+        cursor.close();
+        db.close();
+        return entries;
+    }
+
+    public List<Integer> getPastMonth(){
+        long current = System.currentTimeMillis();
+        long substract = 30L*24L*60L*60L*1000L;
+        long min = current - substract;
+        SQLiteDatabase db = getWritableDatabase();
+        String selection = AppTrackerEntry.COLUMN_NAME_TIMESTAMP+" >= ?";
+
+        String [] selectionArg = new String[]{""+min};
+        String projection =
+                AppTrackerEntry.COLUMN_NAME_YEAR+", "+
+                        AppTrackerEntry.COLUMN_NAME_MONTH+", "+
+                        AppTrackerEntry.COLUMN_NAME_DAY+", "+
+                        AppTrackerEntry.COLUMN_NAME_TIMESTAMP+", "+
+                        "SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED+")"+"," +
+                        "SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_BLOCKED+")";
+        Cursor cursor = db.rawQuery("SELECT "+projection+" FROM "+AppTrackerEntry.TABLE_NAME
+                +" WHERE "+selection +
+                " GROUP BY "+AppTrackerEntry.COLUMN_NAME_DAY+
+                " ORDER BY "+AppTrackerEntry.COLUMN_NAME_TIMESTAMP + " DESC"+
+                " LIMIT 30", selectionArg);
+        List<Integer> entries = new ArrayList<>();
+        HashMap<Long, Integer> timedEntries = new HashMap<>();
+        while(cursor.moveToNext()){
+            timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), cursor.getInt(cursor.getColumnIndex("SUM("+AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED+")")));
+        }
+        for (int i = 1; i <= 30; i++){
+            min = current - i*24*60*60*1000;
+            boolean found = false;
+            for(Map.Entry<Long, Integer> timedEntry:timedEntries.entrySet()){
+                if(timedEntry.getKey() >= min && timedEntry.getKey() < min + 24*60*60*1000){
+                    entries.add(timedEntry.getValue());
+                    found = true;
+                }
+            }
+            if(!found){
+                entries.add(0);
+            }
+        }
+        cursor.close();
+        db.close();
+        return entries;
+    }
+
     public void logAccess(int trackerId, int appUid, boolean blocked){
         Calendar cal = Calendar.getInstance();
         int hour = cal.get(Calendar.HOUR_OF_DAY);

@@ -25,12 +25,12 @@ public class TrackTrackersPrivacyModule implements ITrackTrackersPrivacyModule {
 
     @Override
     public List<Integer> getPastMonthTrackersCalls() {
-        return null;
+        return StatsDatabase.getInstance(mContext).getPastMonth();
     }
 
     @Override
     public List<Integer> getPastYearTrackersCalls() {
-        return null;
+        return StatsDatabase.getInstance(mContext).getPastYear();
     }
 
     @Override
@@ -49,18 +49,29 @@ public class TrackTrackersPrivacyModule implements ITrackTrackersPrivacyModule {
         return sTrackTrackersPrivacyModule;
     }
 
+    private int sumOfList(List<Integer> list){
+        int total = 0;
+        for(int call: list){
+            total+=call;
+        }
+        return total;
+    }
+
     @Override
     public int getPastDayTrackersCount() {
-        return 0;
+        /* TODO optimise */
+        return sumOfList(getPastDayTrackersCalls());
     }
 
     @Override
     public int getPastMonthTrackersCount() {
-        return 0;
+        /* TODO optimise */
+        return sumOfList(getPastMonthTrackersCalls());
     }
 
     @Override
     public int getPastYearTrackersCount() {
-        return 0;
+        /* TODO optimise */
+        return sumOfList(getPastYearTrackersCalls());
     }
 }
