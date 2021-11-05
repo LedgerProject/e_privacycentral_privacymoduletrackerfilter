@@ -85,7 +85,7 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
         if(addToWhitelist) {
             ContentValues values = new ContentValues();
             values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
-            db.insert(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, null, values);
+            db.insert(AppTrackerEntry.APP_WHITELIST_TABLE_NAME, null, values);
         } else {
             ContentValues values = new ContentValues();
             values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
