@@ -76,7 +76,7 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
     @Override
     public void removeListener(Listener listener) {
-
+        mListeners.remove(listener);
     }
 
     @Override
