@@ -346,13 +346,15 @@ public class StatsDatabase extends SQLiteOpenHelper {
                 null,
                 null
         );
-        List<Tracker> tracker = new ArrayList<>();
+        List<Tracker> trackers = new ArrayList<>();
         while(cursor.moveToNext()){
             int trackerId = cursor.getInt(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TRACKER));
-            tracker.add(TrackerListManager.getInstance(mContext).getTracker(trackerId));
+            Tracker tracker = TrackerListManager.getInstance(mContext).getTracker(trackerId);
+            if(tracker != null)
+            trackers.add(tracker);
         }
         cursor.close();
-        return tracker;
+        return trackers;
     }
 
     public List<Tracker> getAllTrackers(){
