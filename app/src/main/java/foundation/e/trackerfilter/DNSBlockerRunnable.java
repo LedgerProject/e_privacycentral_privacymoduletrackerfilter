@@ -79,24 +79,25 @@ public class DNSBlockerRunnable implements Runnable {
 				String line = reader.readLine();
 				Log.d(TAG,"Contexnt: "+line);
 				String [] params = line.split(",");
-
 				OutputStream output = socket.getOutputStream();
 				PrintWriter writer = new PrintWriter(output, true);
 				AppTrackerWhitelist dbHelper = AppTrackerWhitelist.getInstance(mContext);
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
 				boolean shouldBlock = false;
-				if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled() && DNSResponsePatcher.filter(domainName, false) ) {
-					Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
+				if(DNSResponsePatcher.filter(domainName, false) ) {
+					if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled()) {
+						Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
 
-					// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
-					if(!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))){
-						writer.println("block");
-						shouldBlock = true;
-						if(tracker!=null)
-						Log.d(TAG,"tracker "+tracker.getLabel());
-						Log.d(TAG, "blocking "+domainName+" for "+mContext.getPackageManager().getPackagesForUid(appUid));
+						// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
+						if (!dbHelper.isAppWhitelisted(appUid + 10) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))) {
+							writer.println("block");
+							shouldBlock = true;
+							if (tracker != null)
+								Log.d(TAG, "tracker " + tracker.getLabel());
+							Log.d(TAG, "blocking " + domainName + " for " + mContext.getPackageManager().getPackagesForUid(appUid));
 
+						}
 					}
 					StatsIntentService.startActionLog(mContext, domainName, appUid, shouldBlock);
 				}
