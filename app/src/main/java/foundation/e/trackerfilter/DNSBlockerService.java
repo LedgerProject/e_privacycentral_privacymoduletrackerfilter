@@ -35,7 +35,7 @@ public class DNSBlockerService extends Service {
             } catch (IllegalStateException e){ //fired if already running
 
             }
-            sDNSBlocker = new DNSBlockerRunnable(8888);
+            sDNSBlocker = new DNSBlockerRunnable(this,8888);
             new Thread(sDNSBlocker).start();
         } catch (IOException e) {
             sDnsFilter = null;

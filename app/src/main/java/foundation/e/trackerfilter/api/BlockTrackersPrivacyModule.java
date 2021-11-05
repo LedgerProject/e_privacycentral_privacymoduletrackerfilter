@@ -15,8 +15,13 @@ import foundation.e.trackerfilter.AppTrackerWhitelist;
 
 public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
+    private final Context mContext;
     private List<Listener> mListeners = new ArrayList<>();
     private static BlockTrackersPrivacyModule sBlockTrackersPrivacyModule;
+
+    public BlockTrackersPrivacyModule(Context ct) {
+        mContext = ct;
+    }
 
     @Override
     public void addListener(Listener listener) {
@@ -30,7 +35,7 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
     @Override
     public void disableBlocking() {
-        PreferenceManager.getDefaultSharedPreferences(DNSFilterService.ct).edit().putBoolean("enable_global_blocking", false).commit();
+        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean("enable_global_blocking", false).commit();
         for(Listener listener:mListeners){
             listener.onBlockingToggle(false);
         }
@@ -38,7 +43,7 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
     @Override
     public void enableBlocking() {
-        PreferenceManager.getDefaultSharedPreferences(DNSFilterService.ct).edit().putBoolean("enable_global_blocking", true).commit();
+        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean("enable_global_blocking", true).commit();
         for(Listener listener:mListeners){
             listener.onBlockingToggle(true);
         }
@@ -46,27 +51,27 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
     @Override
     public List<Tracker> getWhiteList(int i) {
-        return AppTrackerWhitelist.getInstance(DNSFilterService.ct).getWhiteList(i);
+        return AppTrackerWhitelist.getInstance(mContext).getWhiteList(i);
     }
 
     @Override
     public List<Integer> getWhiteListedApp() {
-        return AppTrackerWhitelist.getInstance(DNSFilterService.ct).getWhiteListedApps();
+        return AppTrackerWhitelist.getInstance(mContext).getWhiteListedApps();
     }
 
     @Override
     public boolean isBlockingEnabled() {
-        return PreferenceManager.getDefaultSharedPreferences(DNSFilterService.ct).getBoolean("enable_global_blocking", false);
+        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("enable_global_blocking", false);
     }
 
     @Override
     public boolean isWhiteListEmpty() {
-        return AppTrackerWhitelist.getInstance(DNSFilterService.ct).getWhiteListedApps().isEmpty();
+        return AppTrackerWhitelist.getInstance(mContext).getWhiteListedApps().isEmpty();
     }
 
     @Override
     public boolean isWhitelisted(int appUid) {
-        return AppTrackerWhitelist.getInstance(DNSFilterService.ct).isAppWhitelisted(appUid);
+        return AppTrackerWhitelist.getInstance(mContext).isAppWhitelisted(appUid);
     }
 
     @Override
@@ -76,17 +81,17 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
 
     @Override
     public void setWhiteListed(Tracker tracker, int i, boolean b) {
-        AppTrackerWhitelist.getInstance(DNSFilterService.ct).setWhiteListed(tracker,i, b);
+        AppTrackerWhitelist.getInstance(mContext).setWhiteListed(tracker,i, b);
     }
 
     @Override
     public void setWhiteListed(int i, boolean b) {
-        AppTrackerWhitelist.getInstance(DNSFilterService.ct).setWhiteListed(i, b);
+        AppTrackerWhitelist.getInstance(mContext).setWhiteListed(i, b);
     }
 
     public static BlockTrackersPrivacyModule getInstance(Context ct){
         if(sBlockTrackersPrivacyModule == null){
-            sBlockTrackersPrivacyModule = new BlockTrackersPrivacyModule();
+            sBlockTrackersPrivacyModule = new BlockTrackersPrivacyModule(ct);
         }
         return sBlockTrackersPrivacyModule;
     }

@@ -23,6 +23,7 @@ package foundation.e.trackerfilter;
  */
 
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -42,12 +43,14 @@ import util.Logger;
 
 public class DNSBlockerRunnable implements Runnable {
 
+	private final Context mContext;
 	ServerSocket resolverReceiver;
 	boolean stopped = false;
 	int port = 8888;
 	private final String TAG = DNSBlockerRunnable.class.getName();
 
-	public DNSBlockerRunnable(int port) {
+	public DNSBlockerRunnable(Context ct, int port) {
+		this.mContext = ct;
 		this.port = port;
 	}
 
@@ -74,31 +77,32 @@ public class DNSBlockerRunnable implements Runnable {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				Log.d(TAG,"Reading buffer");
 				String line = reader.readLine();
-				Log.d(TAG,"Content: "+line);
+				Log.d(TAG,"Contexnt: "+line);
 				String [] params = line.split(",");
 
 				OutputStream output = socket.getOutputStream();
 				PrintWriter writer = new PrintWriter(output, true);
-				AppTrackerWhitelist dbHelper = AppTrackerWhitelist.getInstance(DNSFilterService.ct);
+				AppTrackerWhitelist dbHelper = AppTrackerWhitelist.getInstance(mContext);
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
 				boolean shouldBlock = false;
-				if(BlockTrackersPrivacyModule.getInstance(DNSFilterService.ct).isBlockingEnabled() && DNSResponsePatcher.filter(domainName, false) ) {
-					Tracker tracker = TrackerListManager.getInstance(DNSFilterService.ct).getTrackerByDomainName(domainName);
+				if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled() && DNSResponsePatcher.filter(domainName, false) ) {
+					Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
+
 					// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
 					if(!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))){
 						writer.println("block");
 						shouldBlock = true;
 						if(tracker!=null)
 						Log.d(TAG,"tracker "+tracker.getLabel());
-						Log.d(TAG, "blocking "+domainName+" for "+DNSFilterService.ct.getPackageManager().getPackagesForUid(appUid));
+						Log.d(TAG, "blocking "+domainName+" for "+mContext.getPackageManager().getPackagesForUid(appUid));
 
 					}
-					StatsIntentService.startActionLog(DNSFilterService.ct, domainName, appUid, shouldBlock);
+					StatsIntentService.startActionLog(mContext, domainName, appUid, shouldBlock);
 				}
 				if(!shouldBlock) {
 					writer.println("pass");
-					Log.d(TAG, "not blocking "+params[0]+" for "+DNSFilterService.ct.getPackageManager().getNameForUid(Integer.parseInt(params[1])));
+					Log.d(TAG, "not blocking "+params[0]+" for "+mContext.getPackageManager().getNameForUid(Integer.parseInt(params[1])));
 
 				}
 				socket.close();
