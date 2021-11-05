@@ -342,7 +342,7 @@ public class StatsDatabase extends SQLiteOpenHelper {
                 projection,
                 selection,
                 selectionArg,
-                AppTrackerEntry.COLUMN_NAME_TRACKER,
+                null,
                 null,
                 null
         );
