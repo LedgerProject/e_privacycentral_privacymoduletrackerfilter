@@ -58,12 +58,6 @@ public class StatsIntentService extends IntentService {
         }
         StatsDatabase database = StatsDatabase.getInstance(this);
         database.logAccess(tracker.getId(),appId, wasBlocked);
-        int i = 0;
-        for(Integer j: database.getPast24h()){
-            Log.d(TAG, "last"+i+" "+j);
-            i++;
-        }
-
     }
 
 
