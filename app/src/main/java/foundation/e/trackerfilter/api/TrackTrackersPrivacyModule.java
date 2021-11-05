@@ -40,7 +40,7 @@ public class TrackTrackersPrivacyModule implements ITrackTrackersPrivacyModule {
 
     @Override
     public List<Tracker> getTrackersForApp(int i) {
-        return null;
+        return StatsDatabase.getInstance(mContext).getAllTrackersOfApp(i);
     }
     public static TrackTrackersPrivacyModule getInstance(Context ct){
         if(sTrackTrackersPrivacyModule == null){

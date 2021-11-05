@@ -14,15 +14,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import foundation.e.privacymodules.trackers.Tracker;
 import foundation.e.trackerfilter.api.TrackTrackersPrivacyModule;
 
 public class StatsDatabase extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "TrackerFilterStats.db";
     private static StatsDatabase sStatsDatabase;
+    private final Context mContext;
 
     public StatsDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
     }
 
     public static StatsDatabase getInstance(Context ct){
@@ -326,7 +329,7 @@ public class StatsDatabase extends SQLiteOpenHelper {
         return entry;
     }
 
-    public List<String> getAllTrackersOfApp(int app_uid){
+    public List<Tracker> getAllTrackersOfApp(int app_uid){
         String selection = null;
         String[] selectionArg = null;
         if(app_uid >=0){
@@ -343,15 +346,16 @@ public class StatsDatabase extends SQLiteOpenHelper {
                 null,
                 null
         );
-        List<String> tracker = new ArrayList<>();
+        List<Tracker> tracker = new ArrayList<>();
         while(cursor.moveToNext()){
-            tracker.add(cursor.getString(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TRACKER)));
+            int trackerId = cursor.getInt(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TRACKER));
+            tracker.add(TrackerListManager.getInstance(mContext).getTracker(trackerId));
         }
         cursor.close();
         return tracker;
     }
 
-    public List<String> getAllTrackers(){
+    public List<Tracker> getAllTrackers(){
         return getAllTrackersOfApp(-1);
     }
 
