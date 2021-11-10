@@ -127,7 +127,8 @@ public class StatsDatabase extends SQLiteOpenHelper {
             List<Integer> entries = new ArrayList<>();
             HashMap<Long, Integer> timedEntries = new HashMap<>();
             while (cursor.moveToNext()) {
-                timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + ")")));
+                int diff = cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + ")")) - cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_BLOCKED + ")"));
+                timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), diff);
             }
             for (int i = 1; i <= 24; i++) {
                 min = current - i * 60 * 60 * 1000;
@@ -172,7 +173,8 @@ public class StatsDatabase extends SQLiteOpenHelper {
             List<Integer> entries = new ArrayList<>();
             HashMap<Long, Integer> timedEntries = new HashMap<>();
             while (cursor.moveToNext()) {
-                timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + ")")));
+                int diff = cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + ")")) - cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_BLOCKED + ")"));
+                timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), diff);
             }
             long month = 30L * 24L * 60L * 60L * 1000L;
 
@@ -219,7 +221,8 @@ public class StatsDatabase extends SQLiteOpenHelper {
             List<Integer> entries = new ArrayList<>();
             HashMap<Long, Integer> timedEntries = new HashMap<>();
             while (cursor.moveToNext()) {
-                timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + ")")));
+                int diff = cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_CONTACTED + ")")) - cursor.getInt(cursor.getColumnIndex("SUM(" + AppTrackerEntry.COLUMN_NAME_NUMBER_BLOCKED + ")"));
+                timedEntries.put(cursor.getLong(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TIMESTAMP)), diff);
             }
             for (int i = 1; i <= 30; i++) {
                 min = current - i * 24 * 60 * 60 * 1000;
