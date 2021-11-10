@@ -39,6 +39,8 @@ package foundation.e.trackerfilter;
  */
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -48,6 +50,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import dnsfilter.DNSResponsePatcher;
 import dnsfilter.android.DNSFilterService;
@@ -59,6 +63,7 @@ import util.Logger;
 
 public class DNSBlockerRunnable implements Runnable {
 
+	private static List<Integer> sSystemApps;
 	private final Context mContext;
 	ServerSocket resolverReceiver;
 	boolean stopped = false;
@@ -70,8 +75,22 @@ public class DNSBlockerRunnable implements Runnable {
 		this.port = port;
 	}
 
+	public static void init(Context context){
+		if(sSystemApps == null) {
+			sSystemApps = new ArrayList<>();
+			List<ApplicationInfo> apps = context.getPackageManager().getInstalledApplications(0);
+			for (ApplicationInfo app : apps) {
+				if ((app.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
+					if(!app.packageName.equals("foundation.e.browser") && !app.packageName.equals("foundation.e.mail"))
+						sSystemApps.add(app.uid);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void run() {
+		init(mContext);
 		try {
 			resolverReceiver
 					= new ServerSocket(8888);
@@ -101,9 +120,9 @@ public class DNSBlockerRunnable implements Runnable {
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
 				boolean shouldBlock = false;
-
 				if(DNSResponsePatcher.filter(domainName, false) ) {
-					if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled()) {
+
+					if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled() && !sSystemApps.contains(appUid)) {
 						Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
 
 						// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
@@ -112,7 +131,8 @@ public class DNSBlockerRunnable implements Runnable {
 							shouldBlock = true;
 							if (tracker != null)
 								Log.d(TAG, "tracker " + tracker.getLabel());
-							Log.d(TAG, "blocking " + domainName + " for " + mContext.getPackageManager().getPackagesForUid(appUid));
+							for(String packageName : mContext.getPackageManager().getPackagesForUid(appUid))
+							Log.d(TAG, "blocking " + domainName + " for " + packageName);
 
 						}
 					}
