@@ -91,7 +91,7 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
             values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
             values.put(AppTrackerEntry.COLUMN_NAME_TRACKER, tracker.getId());
 
-            db.delete(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, null, new String[]{app_uid+"", tracker.getHostname()});
+            db.delete(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, AppTrackerEntry.COLUMN_NAME_APP_UID + " = ? AND "+AppTrackerEntry.COLUMN_NAME_TRACKER +" = ?", new String[]{app_uid+"", ""+tracker.getId()});
 
         }
         db.close();
