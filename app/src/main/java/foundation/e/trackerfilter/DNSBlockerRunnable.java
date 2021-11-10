@@ -101,12 +101,13 @@ public class DNSBlockerRunnable implements Runnable {
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
 				boolean shouldBlock = false;
+
 				if(DNSResponsePatcher.filter(domainName, false) ) {
 					if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled()) {
 						Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
 
 						// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
-						if (!dbHelper.isAppWhitelisted(appUid + 10) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))) {
+						if (!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))) {
 							writer.println("block");
 							shouldBlock = true;
 							if (tracker != null)
