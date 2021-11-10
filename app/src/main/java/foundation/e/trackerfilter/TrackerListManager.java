@@ -145,6 +145,7 @@ public class TrackerListManager extends SQLiteOpenHelper {
 
             long id = db.insert(TrackerEntry.TRACKERS_TABLE_NAME, null, values);
             tracker = new Tracker((int) id, tracker.getLabel(), tracker.getHostname(), tracker.getExodusId(), tracker.getDescription(), tracker.getNetworkSignature());
+            mTrackersIdMap.put(tracker.getId(), tracker);
             return tracker;
         }
     }

@@ -1,14 +1,32 @@
+/*
+ * Copyright (C) 2021 E FOUNDATION
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package foundation.e.trackerfilter;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 
 import foundation.e.privacymodules.trackers.Tracker;
 
 
-public class StatsIntentService extends IntentService {
+public class StatsIntentService extends Service {
 
     private static final String ACTION_LOG = "dnsfilter.action.log";
 
@@ -18,8 +36,11 @@ public class StatsIntentService extends IntentService {
     private static final String EXTRA_BLOCKED = "blocked";
     private static final String TAG = StatsIntentService.class.getName();
 
-    public StatsIntentService() {
-        super("StatIntentService");
+
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     /**
@@ -37,8 +58,8 @@ public class StatsIntentService extends IntentService {
         context.startService(intent);
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        int start = super.onStartCommand(intent, flags, startId);
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_LOG.equals(action)) {
@@ -47,6 +68,7 @@ public class StatsIntentService extends IntentService {
                 handleActionLog(domaineName, appUid, intent.getBooleanExtra(EXTRA_BLOCKED, false));
             }
         }
+        return start;
     }
 
 

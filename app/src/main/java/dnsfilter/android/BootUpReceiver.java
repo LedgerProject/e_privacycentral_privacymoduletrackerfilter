@@ -33,6 +33,7 @@ import android.net.VpnService;
 import android.os.Build;
 
 import foundation.e.trackerfilter.DNSBlockerService;
+import foundation.e.trackerfilter.StatsIntentService;
 import util.ExecutionEnvironment;
 
 public class BootUpReceiver extends BroadcastReceiver {
@@ -48,7 +49,8 @@ public class BootUpReceiver extends BroadcastReceiver {
 				VpnService.prepare(context);
 				context.startForegroundService(i);
 				i = new Intent(context, DNSBlockerService.class);
-				VpnService.prepare(context);
+				context.startForegroundService(i);
+				i = new Intent(context, StatsIntentService.class);
 				context.startForegroundService(i);
 			} else {
 				DNSProxyActivity.BOOT_START = true;

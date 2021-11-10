@@ -53,6 +53,7 @@ import dnsfilter.DNSResponsePatcher;
 import dnsfilter.android.DNSFilterService;
 import foundation.e.privacymodules.trackers.Tracker;
 import foundation.e.trackerfilter.api.BlockTrackersPrivacyModule;
+import foundation.e.trackerfilter.api.TrackTrackersPrivacyModule;
 import util.ExecutionEnvironment;
 import util.Logger;
 
