@@ -20,7 +20,6 @@ package foundation.e.trackerfilter;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
@@ -379,7 +378,6 @@ public class StatsDatabase extends SQLiteOpenHelper {
             List<Tracker> trackers = new ArrayList<>();
             while (cursor.moveToNext()) {
                 int trackerId = cursor.getInt(cursor.getColumnIndex(AppTrackerEntry.COLUMN_NAME_TRACKER));
-                Log.d("trackerdebug","trackerId "+trackerId);
                 Tracker tracker = TrackerListManager.getInstance(mContext).getTracker(trackerId);
                 if (tracker != null)
                     trackers.add(tracker);
