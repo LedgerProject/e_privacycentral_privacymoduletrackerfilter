@@ -37,9 +37,9 @@
         </service>
 
         <receiver
-            android:name="dnsfilter.android.BootUpReceiver"
+            android:name="foundation.e.trackerfilter.EBootupReceiver"
             android:enabled="true"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
