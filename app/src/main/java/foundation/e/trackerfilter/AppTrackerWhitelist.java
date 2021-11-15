@@ -35,6 +35,7 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
     public static final String DATABASE_NAME = "AppTrackerWhitelist.db";
     private static AppTrackerWhitelist sAppTrackerWhitelist;
     private final Context mContext;
+    private Object mLock = new Object();
 
     public AppTrackerWhitelist(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -54,96 +55,100 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
 
 
     public List<Tracker> getWhiteList(int app_uid) {
-        List<Tracker> trackers = new ArrayList<>();
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(
-                AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME,
-                app_tracker_projection,
-                AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
-                new String[]{""+app_uid},
-                null,
-                null,
-                null
-        );
-        while(cursor.moveToNext()){
-            Tracker tracker = TrackerListManager.getInstance(mContext)
-                    .getTracker(cursor.getInt(cursor
-                            .getColumnIndex(AppTrackerEntry.COLUMN_NAME_TRACKER)));
-            if(tracker!=null)
-                trackers.add(tracker);
+        synchronized (mLock) {
+            List<Tracker> trackers = new ArrayList<>();
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor cursor = db.query(
+                    AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME,
+                    app_tracker_projection,
+                    AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
+                    new String[]{"" + app_uid},
+                    null,
+                    null,
+                    null
+            );
+            while (cursor.moveToNext()) {
+                Tracker tracker = TrackerListManager.getInstance(mContext)
+                        .getTracker(cursor.getInt(cursor
+                                .getColumnIndex(AppTrackerEntry.COLUMN_NAME_TRACKER)));
+                if (tracker != null)
+                    trackers.add(tracker);
 
+            }
+            return trackers;
         }
-        return trackers;
     }
 
 
 
     public void setWhiteListed(Tracker tracker, int app_uid, boolean addToWhitelist) {
-        SQLiteDatabase db = getWritableDatabase();
-        if(addToWhitelist) {
-            ContentValues values = new ContentValues();
-            values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
-            values.put(AppTrackerEntry.COLUMN_NAME_TRACKER, tracker.getId());
+        synchronized (mLock) {
+            SQLiteDatabase db = getWritableDatabase();
+            if (addToWhitelist) {
+                ContentValues values = new ContentValues();
+                values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
+                values.put(AppTrackerEntry.COLUMN_NAME_TRACKER, tracker.getId());
 
-            db.insert(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, null, values);
-        } else {
-            ContentValues values = new ContentValues();
-            values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
-            values.put(AppTrackerEntry.COLUMN_NAME_TRACKER, tracker.getId());
+                db.insert(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, null, values);
 
-            db.delete(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, AppTrackerEntry.COLUMN_NAME_APP_UID + " = ? AND "+AppTrackerEntry.COLUMN_NAME_TRACKER +" = ?", new String[]{app_uid+"", ""+tracker.getId()});
-
+            } else {
+                db.delete(AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME, AppTrackerEntry.COLUMN_NAME_APP_UID + " = ? AND " + AppTrackerEntry.COLUMN_NAME_TRACKER + " = ?", new String[]{app_uid + "", "" + tracker.getId()});
+            }
         }
-        db.close();
     }
 
     public void setWhiteListed(int app_uid, boolean addToWhitelist) {
-        SQLiteDatabase db = getWritableDatabase();
-        if(addToWhitelist) {
-            ContentValues values = new ContentValues();
-            values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
-            db.insert(AppTrackerEntry.APP_WHITELIST_TABLE_NAME, null, values);
-        } else {
-            ContentValues values = new ContentValues();
-            values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
-            db.delete(AppTrackerEntry.APP_WHITELIST_TABLE_NAME, null, new String[]{app_uid+""});
+        synchronized (mLock) {
+            SQLiteDatabase db = getWritableDatabase();
+            if (addToWhitelist) {
+                ContentValues values = new ContentValues();
+                values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
+                db.insert(AppTrackerEntry.APP_WHITELIST_TABLE_NAME, null, values);
+            } else {
+                ContentValues values = new ContentValues();
+                values.put(AppTrackerEntry.COLUMN_NAME_APP_UID, app_uid);
+                db.delete(AppTrackerEntry.APP_WHITELIST_TABLE_NAME, null, new String[]{app_uid + ""});
+            }
         }
-        db.close();
     }
 
     public boolean isAppWhitelisted(int appUid) {
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(
-                AppTrackerEntry.APP_WHITELIST_TABLE_NAME,
-                app_projection,
-                AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
-                new String[]{""+appUid},
-                null,
-                null,
-                null
-        );
+        synchronized (mLock) {
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor cursor = db.query(
+                    AppTrackerEntry.APP_WHITELIST_TABLE_NAME,
+                    app_projection,
+                    AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
+                    new String[]{"" + appUid},
+                    null,
+                    null,
+                    null
+            );
 
-        return cursor.getCount() > 0;
+            return cursor.getCount() > 0;
+        }
     }
 
     public List<Integer> getWhiteListedApps() {
-        List<Integer> apps = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(
-                AppTrackerEntry.APP_WHITELIST_TABLE_NAME,
-                app_projection,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        while(cursor.moveToNext()){
-            apps.add(cursor.getInt(cursor
-                    .getColumnIndex(AppTrackerEntry.COLUMN_NAME_APP_UID)));
+        synchronized (mLock) {
+            List<Integer> apps = new ArrayList<>();
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.query(
+                    AppTrackerEntry.APP_WHITELIST_TABLE_NAME,
+                    app_projection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            while (cursor.moveToNext()) {
+                apps.add(cursor.getInt(cursor
+                        .getColumnIndex(AppTrackerEntry.COLUMN_NAME_APP_UID)));
 
+            }
+            return apps;
         }
-        return apps;
     }
 
 
@@ -175,18 +180,20 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
 
 
     public boolean isTrackerWhitelistedForApp(int trackerId, int uid){
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(
-                AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME,
-                app_tracker_projection,
-                AppTrackerEntry.COLUMN_NAME_TRACKER+" = ? AND "+AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
-                new String[]{""+trackerId, ""+uid},
-                null,
-                null,
-                null
-        );
+        synchronized (mLock) {
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor cursor = db.query(
+                    AppTrackerEntry.APP_TRACKER_WHITELIST_TABLE_NAME,
+                    app_tracker_projection,
+                    AppTrackerEntry.COLUMN_NAME_TRACKER + " = ? AND " + AppTrackerEntry.COLUMN_NAME_APP_UID + " = ?",
+                    new String[]{"" + trackerId, "" + uid},
+                    null,
+                    null,
+                    null
+            );
 
-        return cursor.getCount() > 0;
+            return cursor.getCount() > 0;
+        }
     }
 
     public static AppTrackerWhitelist getInstance(Context ct){
