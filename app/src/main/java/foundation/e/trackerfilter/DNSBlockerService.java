@@ -58,9 +58,11 @@ public class DNSBlockerService extends Service {
             sDnsFilter = null;
             e.printStackTrace();
         }
+        ForegroundStarter.startForeground(this);
 
 
         return START_STICKY;
 
     }
+    
 }

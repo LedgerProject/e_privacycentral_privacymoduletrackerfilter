@@ -68,6 +68,7 @@ public class StatsIntentService extends Service {
                 handleActionLog(domaineName, appUid, intent.getBooleanExtra(EXTRA_BLOCKED, false));
             }
         }
+        ForegroundStarter.startForeground(this);
         return start;
     }
 
