@@ -2,6 +2,7 @@ image: "registry.gitlab.e.foundation:5000/e/apps/docker-android-apps-cicd:latest
 
 stages:
 - build
+- .post
 
 before_script:
 - export GRADLE_USER_HOME=$(pwd)/.gradle
