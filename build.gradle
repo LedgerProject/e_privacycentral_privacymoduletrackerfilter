@@ -15,5 +15,32 @@ allprojects {
     repositories {
         google()
         jcenter()
+        def ciJobToken = System.getenv("CI_JOB_TOKEN")
+        def ciApiV4Url = System.getenv("CI_API_V4_URL")
+        if (ciJobToken != null) {
+            maven {
+                url "${ciApiV4Url}/groups/13662/-/packages/maven"
+                name "GitLab"
+                credentials(HttpHeaderCredentials) {
+                    name = 'Job-Token'
+                    value = ciJobToken
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        } else {
+            maven {
+                url "https://gitlab.e.foundation/api/v4/groups/13662/-/packages/maven"
+                name "GitLab"
+                credentials(HttpHeaderCredentials) {
+                    name = 'Private-Token'
+                    value = 'private-token'
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        }
     }
 }
