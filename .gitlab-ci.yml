@@ -19,3 +19,11 @@ build:
   artifacts:
     paths:
     - app/build/outputs/aar
+
+deploy:
+  stage: .post
+  script:
+    - 'gradle publish'
+  only:
+    - master
+

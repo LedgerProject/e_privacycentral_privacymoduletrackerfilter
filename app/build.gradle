@@ -24,3 +24,57 @@ dependencies{
 repositories {
     mavenCentral()
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'foundation.e'
+            //You can either define these here or get them from project conf elsewhere
+            artifactId 'privacymodule.trackerfilter'
+            version android.defaultConfig.versionName
+            artifact "$buildDir/outputs/aar/app-release.aar"
+            //aar artifact you want to publish
+
+            //generate pom nodes for dependencies
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.implementation.allDependencies.each { dependency ->
+                    if (dependency.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dependency.group)
+                        dependencyNode.appendNode('artifactId', dependency.name)
+                        dependencyNode.appendNode('version', dependency.version)
+                    }
+                }
+            }
+            repositories {
+                def ciJobToken = System.getenv("CI_JOB_TOKEN")
+                def ciApiV4Url = System.getenv("CI_API_V4_URL")
+                if (ciJobToken != null) {
+                    maven {
+                        url "${ciApiV4Url}/projects/780/packages/maven"
+                        credentials(HttpHeaderCredentials) {
+                            name = 'Job-Token'
+                            value = ciJobToken
+                        }
+                        authentication {
+                            header(HttpHeaderAuthentication)
+                        }
+                    }
+                } else {
+                    maven {
+                        url "https://gitlab.e.foundation/api/v4/projects/780/packages/maven"
+                        credentials(HttpHeaderCredentials) {
+                            name = "Private-Token"
+                            value = gitLabPrivateToken
+                            // the variable resides in ~/.gradle/gradle.properties
+                        }
+                        authentication {
+                            header(HttpHeaderAuthentication)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
