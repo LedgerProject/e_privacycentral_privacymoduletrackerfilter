@@ -1,5 +1,16 @@
 # personalDNSfilter
 
+
+## Build
+
+Generate aar
+
+```
+./gradlew :privacymodulesapi:assembleRelease
+./gradlew --console=verbose publishToMavenLocal
+```
+
+
 See http://www.zenz-solutions.de/personaldnsfilter for details
 
 [<img src="https://f-droid.org/badge/get-it-on.png"
