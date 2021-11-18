@@ -120,27 +120,38 @@ public class DNSBlockerRunnable implements Runnable {
 				String domainName = params[0];
 				int appUid = Integer.parseInt(params[1]);
 				boolean shouldBlock = false;
-				if(DNSResponsePatcher.filter(domainName, false) ) {
+				String [] packages = mContext.getPackageManager().getPackagesForUid(appUid);
+				boolean isBrowser = false;
+				if(packages != null) {
+					for (String packageName : packages)
+						if (packageName.equals("foundation.e.browser"))
+							isBrowser = true;
+					if (domainName.equals("chrome.cloudflare-dns.com") && isBrowser)
+						shouldBlock = true;
+					if (DNSResponsePatcher.filter(domainName, false)) {
 
-					if(BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled() && !sSystemApps.contains(appUid)) {
-						Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
+						if (BlockTrackersPrivacyModule.getInstance(mContext).isBlockingEnabled() && !sSystemApps.contains(appUid)) {
+							Tracker tracker = TrackerListManager.getInstance(mContext).getTrackerByDomainName(domainName);
 
-						// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
-						if (!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))) {
-							writer.println("block");
-							shouldBlock = true;
-							if (tracker != null)
-								Log.d(TAG, "tracker " + tracker.getLabel());
-							for(String packageName : mContext.getPackageManager().getPackagesForUid(appUid))
-							Log.d(TAG, "blocking " + domainName + " for " + packageName);
+							// tracker can be null if not in exodus list and was never encountered. if app isn't whitelisted, we block null trackers
+							if (!dbHelper.isAppWhitelisted(appUid) && (tracker == null || !dbHelper.isTrackerWhitelistedForApp(tracker.getId(), appUid))) {
+								writer.println("block");
+								shouldBlock = true;
+								if (tracker != null)
+									Log.d(TAG, "tracker " + tracker.getLabel());
+								for (String packageName : packages)
+									Log.d(TAG, "blocking " + domainName + " for " + packageName);
 
+							}
 						}
+						StatsIntentService.startActionLog(mContext, domainName, appUid, shouldBlock);
 					}
-					StatsIntentService.startActionLog(mContext, domainName, appUid, shouldBlock);
 				}
 				if(!shouldBlock) {
 					writer.println("pass");
-					Log.d(TAG, "not blocking "+params[0]+" for "+mContext.getPackageManager().getNameForUid(Integer.parseInt(params[1])));
+					if(packages != null)
+					for(String packageName: packages)
+						Log.d(TAG, "not blocking " + domainName + " for " + packageName);
 
 				}
 				socket.close();
