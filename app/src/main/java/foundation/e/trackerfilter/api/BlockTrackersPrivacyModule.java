@@ -18,14 +18,13 @@
 package foundation.e.trackerfilter.api;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import dnsfilter.android.DNSFilterService;
-import dnsfilter.android.R;
+import foundation.e.privacymodules.permissions.data.ApplicationDescription;
 import foundation.e.privacymodules.trackers.IBlockTrackersPrivacyModule;
 import foundation.e.privacymodules.trackers.Tracker;
 import foundation.e.trackerfilter.AppTrackerWhitelist;
@@ -105,6 +104,17 @@ public class BlockTrackersPrivacyModule implements IBlockTrackersPrivacyModule {
     public void setWhiteListed(int i, boolean b) {
         AppTrackerWhitelist.getInstance(mContext).setWhiteListed(i, b);
     }
+    @Override
+    public List<ApplicationDescription> getBlockableApps(){
+        List<ApplicationDescription> returnApps = new ArrayList<>();
+        for (ApplicationInfo applicationInfo: AppTrackerWhitelist.getInstance(mContext).getWhitelistableApps(false)){
+            ApplicationDescription description = new ApplicationDescription(applicationInfo.packageName, applicationInfo.uid,mContext.getPackageManager().getApplicationLabel(applicationInfo), mContext.getPackageManager().getApplicationIcon(applicationInfo));
+            returnApps.add(description);
+        }
+        return returnApps;
+    }
+
+
 
     public static BlockTrackersPrivacyModule getInstance(Context ct){
         if(sBlockTrackersPrivacyModule == null){

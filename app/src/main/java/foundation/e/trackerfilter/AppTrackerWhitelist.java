@@ -19,6 +19,10 @@ package foundation.e.trackerfilter;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -27,7 +31,6 @@ import android.provider.BaseColumns;
 import java.util.ArrayList;
 import java.util.List;
 
-import foundation.e.privacymodules.trackers.IBlockTrackersPrivacyModule;
 import foundation.e.privacymodules.trackers.Tracker;
 
 public class AppTrackerWhitelist extends SQLiteOpenHelper{
@@ -36,6 +39,8 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
     private static AppTrackerWhitelist sAppTrackerWhitelist;
     private final Context mContext;
     private Object mLock = new Object();
+    private List<ApplicationInfo> mIgnoredApps;
+    private ArrayList<String> mLauncherAppsList;
 
     public AppTrackerWhitelist(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -194,6 +199,52 @@ public class AppTrackerWhitelist extends SQLiteOpenHelper{
 
             return cursor.getCount() > 0;
         }
+    }
+
+    private boolean isWhitelistable(ApplicationInfo app){
+
+        /*if (AppUtils.isInstant(app)) {
+            return false;
+        } else*/ if (hasFlag(app.flags, ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) {
+            return true;
+        } else if (!hasFlag(app.flags, ApplicationInfo.FLAG_SYSTEM)) {
+            return true;
+        } else if (mLauncherAppsList.contains(app.packageName)) {
+            return true;
+        } else if (false/* hasFlag(app.flags, ApplicationInfo.FLAG_SYSTEM)&& app.isHomeApp*/) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean hasFlag(int flags, int flag) {
+        return (flags & flag) != 0;
+    }
+
+
+
+    public List<ApplicationInfo> getWhitelistableApps(boolean ignoredApps){
+        if(ignoredApps && mIgnoredApps != null)
+            return mIgnoredApps;
+        List<ApplicationInfo> returnApps = new ArrayList<>();
+        PackageManager pm = mContext.getPackageManager();
+        mLauncherAppsList = new ArrayList<String>();
+        Intent i = new Intent(Intent.ACTION_MAIN, null);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> allApps = pm.queryIntentActivities(i, 0);
+        for(ResolveInfo ri:allApps) {
+                mLauncherAppsList.add(ri.activityInfo.packageName);
+        }
+        List<ApplicationInfo> apps = mContext.getPackageManager().getInstalledApplications(0);
+        for (ApplicationInfo app : apps) {
+            if(isWhitelistable(app) && ! ignoredApps
+                    || ignoredApps && !isWhitelistable(app)) {
+                returnApps.add(app);
+            }
+        }
+        if(ignoredApps)
+            mIgnoredApps = returnApps;
+        return returnApps;
     }
 
     public static AppTrackerWhitelist getInstance(Context ct){

@@ -78,12 +78,9 @@ public class DNSBlockerRunnable implements Runnable {
 	public static void init(Context context){
 		if(sSystemApps == null) {
 			sSystemApps = new ArrayList<>();
-			List<ApplicationInfo> apps = context.getPackageManager().getInstalledApplications(0);
+			List<ApplicationInfo> apps = AppTrackerWhitelist.getInstance(context).getWhitelistableApps(true);
 			for (ApplicationInfo app : apps) {
-				if ((app.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
-					if(!app.packageName.equals("foundation.e.browser") && !app.packageName.equals("foundation.e.mail"))
 						sSystemApps.add(app.uid);
-				}
 			}
 		}
 	}
