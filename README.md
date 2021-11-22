@@ -6,7 +6,7 @@
 Generate aar
 
 ```
-./gradlew :privacymodulesapi:assembleRelease
+./gradlew assemble
 ./gradlew --console=verbose publishToMavenLocal
 ```
 
