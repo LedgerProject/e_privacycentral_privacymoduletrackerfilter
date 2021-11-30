@@ -17,6 +17,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenLocal()
         def ciJobToken = System.getenv("CI_JOB_TOKEN")
         def ciApiV4Url = System.getenv("CI_API_V4_URL")
         if (ciJobToken != null) {
